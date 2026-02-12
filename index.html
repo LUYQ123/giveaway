@@ -20,27 +20,71 @@
 
 <div class="container">
     <h1>Blacklyte Giveaway</h1>
-    <p>Enter details to win a Pixel Screen!</p>
+    <p>Enter details and join our reddit group after submit to win a Pixel Screen!</p>
 
-    <form action="https://api.web3forms.com/submit" method="POST">
-
+    <form id="giveawayForm">
         <input type="hidden" name="access_key" value="ad58af75-3ca4-4660-b58f-e49be6b66c53">
-
-        <input type="hidden" name="redirect" value="https://www.reddit.com/r/Blacklyte">
-
+        
         <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
 
         <input type="text" name="name" placeholder="Full Name" required>
         <input type="email" name="email" placeholder="Email Address" required>
         <input type="text" name="reddit_username" placeholder="Reddit Username (Optional)">
 
-        <button type="submit">Submit & Join Reddit</button>
+        <button type="submit" id="submitBtn">Submit & Join Reddit</button>
     </form>
+    
+    <div id="result" style="margin-top: 10px; font-size: 14px; color: #ff4500; display: none;">
+        Processing... Please wait.
+    </div>
 
     <div class="footer">
-        *By entering, you agree to join our community.<br>
-        Powered by Blacklyte & Web3Forms.
+        *By entering, you agree to join our community.
     </div>
+</div>
+
+<script>
+const form = document.getElementById('giveawayForm');
+const result = document.getElementById('result');
+const submitBtn = document.getElementById('submitBtn');
+
+form.addEventListener('submit', function(e) {
+    e.preventDefault(); // 阻止表单默认跳转行为
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Sending...";
+    result.style.display = "block";
+
+    const formData = new FormData(form);
+    const object = Object.fromEntries(formData);
+    const json = JSON.stringify(object);
+
+    fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: json
+        })
+        .then(async (response) => {
+            let json = await response.json();
+            if (response.status == 200) {
+                // 关键点：数据发送成功后，立刻强行跳转
+                window.location.href = "https://www.reddit.com/r/Blacklyte";
+            } else {
+                console.log(response);
+                result.innerHTML = json.message;
+            }
+        })
+        .catch(error => {
+            console.log(error);
+            result.innerHTML = "Something went wrong!";
+        });
+});
+</script>
+
+  
 </div>
 
 </body>
